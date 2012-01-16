@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<title>Entity Conversion Calculator</title>
+<style type="text/css">
+body {font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;}
+label {display:block; width:12em; float:left;}
+#calculator span {font-family:"Courier New", Courier, mono;}
+</style>
+</head>
+
+<body>
+<h1>Entity Conversion Calculator</h1>
+<div id="calculator">
+<label>Numeric Value (Decimal)</label><input type="text" name="decimal" /> <span></span><br />
+<label>CSS Value (Hex)</label><input type="text" name="octal" disabled="disabled" /> 
+<span></span><br />
+<label>JS Value (Hex)</label><input type="text" name="octal2" disabled="disabled" /> <span></span><br />
+<button>Convert</button>
+</div>
+<p>or</p>
+<div id="converter">
+<label>Paste a character here: <input type="text" id="reverse" size="2" maxlength="1" /></label>
+<button>Convert</button>
+</div>
+<script type="text/javascript">
+/*
+Author: Estelle Weyl
+Date: June 8, 2007
+Modified: January 15, 2012
+*/
+var conversions = {
+	calc : document.getElementById("calculator"),
+    inputs : document.getElementsByTagName("input"),
+    spans : document.getElementsByTagName("span"),
+    theButton : document.getElementsByTagName('button'),
+	x : '',
+	y : '',
+	z : '',
+	setUp: function(){
+		conversions.theButton[0].addEventListener('click', conversions.setAllValues, false);
+		conversions.theButton[1].addEventListener('click', conversions.setTop, false);
+	},
+	setTop : function(){
+		var letter = document.getElementById('reverse').value;
+		document.getElementsByTagName("input")[0].value = letter.charCodeAt().toString(10);
+		conversions.setAllValues();
+	},
+	setAllValues: function(){
+		var decimalValue = conversions.inputs[0].value;
+		    decimalValue = decimalValue.replace(/\D/g, ''); //clean the value
+		var hexValue = Number(decimalValue).toString(16);
+		while(hexValue.length<4){
+			hexValue = "0" + hexValue;
+			//alert('\u' + hexValue);
+		}
+		if(isNaN(decimalValue)){
+		   conversions.inputs[0].value = 'Number Please';
+			 return;
+		}
+		conversions.inputs[0].value = '\46#' + decimalValue;
+		conversions.inputs[1].value = hexcss = '\\'  + hexValue.toUpperCase();
+		conversions.inputs[2].value = hexjs  = '\\u' + hexValue.toUpperCase();
+		
+		var cssText = document.createTextNode("li:before {content:'" + hexcss + "';}");
+		var jsText = document.createTextNode("alert('The hex " + hexjs +" renders as HTML entity \u0026#" + decimalValue + ";');" );
+		  conversions.spans[0].innerHTML = '&#38;#'+ decimalValue +'; = &#' + decimalValue;
+		if(conversions.x){
+			conversions.x = conversions.spans[1].replaceChild(cssText, conversions.x);
+			conversions.y = conversions.spans[2].replaceChild(jsText, conversions.y);
+		} else {
+			conversions.x = conversions.spans[1].appendChild(cssText);
+			conversions.y = conversions.spans[2].appendChild(jsText);
+		}
+		return hexValue;
+	}
+}
+
+    conversions.setUp();
+</script>
+
+</body>
+</html>
